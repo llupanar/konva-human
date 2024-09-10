@@ -156,16 +156,6 @@ export class HumanComponent implements OnInit, AfterViewInit{
       limb.points([baseX, baseY, joint1.x(), joint1.y(), joint2.x(), joint2.y()]);
       this.layer.draw();
     });
-
-    joint1.on('dragend', () => {
-      this.updateJointPosition(joint1, baseX, baseY, distance1);
-      this.layer.draw();
-    });
-
-    joint2.on('dragend', () => {
-      this.updateJointPosition(joint2, joint1.x(), joint1.y(), distance2);
-      this.layer.draw();
-    });
   }
 
   updateJointPosition(joint: Konva.Circle, baseX: number, baseY: number, reqDistance: number){
