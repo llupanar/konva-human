@@ -88,7 +88,11 @@ export class HumanComponent implements OnInit, AfterViewInit{
   
     this.layer.add(this.head);
     this.layer.add(this.body);
-    this.layer.add(this.hat)
+    this.layer.add(this.hat);
+    this.layer.add(this.leftArm);
+    this.layer.add(this.rightArm);
+    this.layer.add(this.leftLeg);
+    this.layer.add(this.rightLeg);
     this.layer.add(this.leftElbow);
     this.layer.add(this.rightElbow);
     this.layer.add(this.leftHand);
@@ -97,10 +101,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
     this.layer.add(this.rightKnee);
     this.layer.add(this.leftFoot);
     this.layer.add(this.rightFoot);
-    this.layer.add(this.leftArm);
-    this.layer.add(this.rightArm);
-    this.layer.add(this.leftLeg);
-    this.layer.add(this.rightLeg);
+
     
     this.layer.draw();
     this.dragControl(this.leftElbow, this.leftHand, this.leftArm, dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, dots.ELBOW_DISTANCE, dots.HAND_DISTANCE);
@@ -129,7 +130,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
       strokeWidth: 5,
       lineCap: 'round',
       lineJoin: 'bevel',
-    });
+    })
   }
 
   createLeg(hipX: number, hipY: number, knee: Konva.Circle, foot: Konva.Circle){
@@ -139,7 +140,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
       strokeWidth: 5,
       lineCap: 'round',
       lineJoin: 'round',
-    });
+    })
   }
 
   dragControl(joint1: Konva.Circle, joint2: Konva.Circle, limb: Konva.Line, baseX: number, baseY: number, distance1: number, distance2: number){
