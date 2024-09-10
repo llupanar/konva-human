@@ -6,6 +6,9 @@ export const BODY_START_Y = HEAD_Y + 30;
 export const BODY_END_X = HEAD_X;
 export const BODY_END_Y = 300;
 
+export const HAT_X = HEAD_X;
+export const HAT_Y = HEAD_Y-70;
+
 export const LEFT_SHOULDER_X = BODY_START_X;
 export const RIGHT_SHOULDER_X = BODY_START_X;
 export const SHOULDER_Y = BODY_START_Y + 30;
@@ -16,8 +19,8 @@ export const HIP_Y = BODY_END_Y;
 
 export const ELBOW_DISTANCE = 60; 
 export const HAND_DISTANCE = 60;  
-export const KNEE_DISTANCE = 70;  
-export const FOOT_DISTANCE = 70;  
+export const KNEE_DISTANCE = 80;  
+export const FOOT_DISTANCE = 80;  
 
 export const LEFT_ELBOW_X = LEFT_SHOULDER_X - ELBOW_DISTANCE;
 export const LEFT_ELBOW_Y = SHOULDER_Y;

@@ -28,6 +28,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
   rightKnee!: Konva.Circle;
   leftFoot!: Konva.Circle;
   rightFoot!: Konva.Circle;
+  hat!: Konva.Wedge;
 
   ngOnInit(): void {
     this.stage = new Konva.Stage({
@@ -59,6 +60,17 @@ export class HumanComponent implements OnInit, AfterViewInit{
       strokeWidth:5
     })
 
+    this.hat = new Konva.Wedge({
+      x: dots.HAT_X,
+      y: dots.HAT_Y,
+      radius: 70,
+      angle: 60,
+      fill: 'red',
+      stroke: 'black',
+      strokeWidth: 4,
+      rotation: 60,
+    });
+
     this.leftElbow = this.createJoint(dots.LEFT_ELBOW_X,dots.LEFT_ELBOW_Y);
     this.rightElbow = this.createJoint(dots.RIGHT_ELBOW_X,dots.RIGHT_ELBOW_Y);
     this.leftHand = this.createJoint(dots.LEFT_HAND_X, dots.LEFT_HAND_Y);
@@ -76,6 +88,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
   
     this.layer.add(this.head);
     this.layer.add(this.body);
+    this.layer.add(this.hat)
     this.layer.add(this.leftElbow);
     this.layer.add(this.rightElbow);
     this.layer.add(this.leftHand);
