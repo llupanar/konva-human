@@ -1,6 +1,8 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as dots from '../../../core/human.constants'
 import Konva from 'konva'
+import { Circle } from 'konva/lib/shapes/Circle';
+import { Line } from 'konva/lib/shapes/Line';
 
 @Component({
   selector: 'app-human',
@@ -44,7 +46,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
     this.drawHuman()
   }
 
-  drawHuman(){
+  drawHuman(): void{
     this.head = new Konva.Circle({
       x: dots.HEAD_X,
       y: dots.HEAD_Y,
@@ -80,11 +82,11 @@ export class HumanComponent implements OnInit, AfterViewInit{
     this.leftFoot = this.createJoint(dots.LEFT_FOOT_X, dots.LEFT_FOOT_Y);
     this.rightFoot = this.createJoint(dots.RIGHT_FOOT_X, dots.RIGHT_FOOT_Y);
 
-    this.leftArm = this.createArm(dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, this.leftElbow, this.leftHand);
-    this.rightArm = this.createArm(dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, this.rightElbow, this.rightHand);
+    this.leftArm = this.createLine(dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, this.leftElbow, this.leftHand);
+    this.rightArm = this.createLine(dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, this.rightElbow, this.rightHand);
   
-    this.leftLeg = this.createLeg(dots.LEFT_HIP_X, dots.HIP_Y, this.leftKnee, this.leftFoot);
-    this.rightLeg = this.createLeg(dots.RIGHT_HIP_X, dots.HIP_Y, this.rightKnee, this.rightFoot);
+    this.leftLeg = this.createLine(dots.LEFT_HIP_X, dots.HIP_Y, this.leftKnee, this.leftFoot);
+    this.rightLeg = this.createLine(dots.RIGHT_HIP_X, dots.HIP_Y, this.rightKnee, this.rightFoot);
   
     this.layer.add(this.head);
     this.layer.add(this.body);
@@ -112,7 +114,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
 
   }
 
-  createJoint(x:number, y: number){
+  createJoint(x:number, y: number): Circle{
     let circle =  new Konva.Circle({
       x: x,
       y: y,
@@ -123,9 +125,9 @@ export class HumanComponent implements OnInit, AfterViewInit{
     return this.mouseControl(circle)
   }
 
-  createArm(shoulderX: number, shoulderY: number, elbow: Konva.Circle, hand: Konva.Circle){
+  createLine(baseX: number, baseY: number, first: Konva.Circle, second: Konva.Circle): Line{
     return new Konva.Line({
-      points: [shoulderX, shoulderY, elbow.x(), elbow.y(), hand.x(), hand.y()],
+      points: [baseX, baseY, first.x(), first.y(), second.x(), second.y()],
       stroke: 'black',
       strokeWidth: 5,
       lineCap: 'round',
@@ -133,17 +135,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
     })
   }
 
-  createLeg(hipX: number, hipY: number, knee: Konva.Circle, foot: Konva.Circle){
-    return new Konva.Line({
-      points: [hipX, hipY, knee.x(), knee.y(), foot.x(), foot.y()],
-      stroke: 'black',
-      strokeWidth: 5,
-      lineCap: 'round',
-      lineJoin: 'round',
-    })
-  }
-
-  dragControl(joint1: Konva.Circle, joint2: Konva.Circle, limb: Konva.Line, baseX: number, baseY: number, distance1: number, distance2: number){
+  dragControl(joint1: Konva.Circle, joint2: Konva.Circle, limb: Konva.Line, baseX: number, baseY: number, distance1: number, distance2: number): void{
     joint1.on('dragmove', () => {
       this.updateJointPosition(joint1, baseX, baseY, distance1);
       this.updateJointPosition(joint2, joint1.x(), joint1.y(), distance2);
@@ -158,7 +150,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
     });
   }
 
-  updateJointPosition(joint: Konva.Circle, baseX: number, baseY: number, reqDistance: number){
+  updateJointPosition(joint: Konva.Circle, baseX: number, baseY: number, reqDistance: number): void{
     const dx = joint.x() - baseX;
     const dy = joint.y() - baseY;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -169,14 +161,13 @@ export class HumanComponent implements OnInit, AfterViewInit{
     }
   }  
 
-  mouseControl( joint: Konva.Circle){
-      joint.on('mouseenter', ()=>{
+  mouseControl( joint: Konva.Circle): Circle{
+      joint.on('mouseenter', () => {
         this.stage.container().style.cursor = 'pointer'
       })
-      joint.on('mouseleave', ()=>{
+      joint.on('mouseleave', () => {
         this.stage.container().style.cursor = 'default'
       })
       return joint;
   }
-
 }
