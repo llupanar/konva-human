@@ -31,7 +31,9 @@ export class HumanComponent implements OnInit, AfterViewInit{
   leftFoot!: Konva.Circle;
   rightFoot!: Konva.Circle;
   hat!: Konva.Wedge;
-  anim!: Konva.Animation;
+  animT!: Konva.Animation;
+  animW!: Konva.Animation;
+
 
   ngOnInit(): void {
     this.stage = new Konva.Stage({
@@ -41,43 +43,76 @@ export class HumanComponent implements OnInit, AfterViewInit{
     })
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
-    this.initAnimation()
+    this.initAnimations()
   }
 
   ngAfterViewInit(): void {
     this.drawHuman()
-    this.startAnimation()
   }
 
-  initAnimation(){
-    this.anim = new Konva.Animation((frame:any)=>{
+  initAnimations() {
+    this.animT = new Konva.Animation((frame: any)=>{
+      const time = frame.time;
+
+      const elbowYMovement = 50 * Math.sin((time * 2 * Math.PI) / 1000) + dots.SHOULDER_Y;
+      
+      this.leftElbow.y(elbowYMovement);
+      this.rightElbow.y(elbowYMovement);
     
-    this.leftElbow.y(
-      10*Math.sin((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
-    )
-    this.rightElbow.y(
-      10*Math.cos((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
-    )
+      this.updateJointPosition(this.leftElbow, dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, dots.ELBOW_DISTANCE);
+      this.updateJointPosition(this.rightElbow, dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, dots.ELBOW_DISTANCE);
+    
+      const handAngle = time * 5 * Math.PI / 1000;
 
-    this.leftHand.y(
-      10*Math.cos((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
-    )
-    this.rightHand.y(
-      10*Math.sin((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
-    )
+      this.leftHand.x(this.leftElbow.x() + dots.HAND_DISTANCE * Math.cos(handAngle));
+      this.leftHand.y(this.leftElbow.y() + dots.HAND_DISTANCE * Math.sin(handAngle));
 
-    this.leftArm.points([dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, this.leftElbow.x(), this.leftElbow.y(), this.leftHand.x(), this.leftHand.y()]);
-    this.rightArm.points([dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, this.rightElbow.x(), this.rightElbow.y(), this.rightHand.x(), this.rightHand.y()]);
-  })
+      this.rightHand.x(this.rightElbow.x() + dots.HAND_DISTANCE * Math.cos(-handAngle + Math.PI));
+      this.rightHand.y(this.rightElbow.y() + dots.HAND_DISTANCE * Math.sin(-handAngle + Math.PI));
+
+      this.leftArm.points([dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, this.leftElbow.x(), this.leftElbow.y(), this.leftHand.x(), this.leftHand.y()]);
+      this.rightArm.points([dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, this.rightElbow.x(), this.rightElbow.y(), this.rightHand.x(), this.rightHand.y()]);
+    });
+  
+    this.animW = new Konva.Animation((frame:any)=>{
+      this.leftElbow.y(
+        10*Math.sin((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
+      )
+      
+      this.rightElbow.y(
+        10*Math.cos((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
+      )
+
+      this.leftHand.y(
+        10*Math.cos((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
+      )
+      this.rightHand.y(
+        10*Math.sin((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
+      )
+
+      this.leftArm.points([dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, this.leftElbow.x(), this.leftElbow.y(), this.leftHand.x(), this.leftHand.y()]);
+      this.rightArm.points([dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, this.rightElbow.x(), this.rightElbow.y(), this.rightHand.x(), this.rightHand.y()]);
+    })
+  }
+     
+  startAnimationW(){
+    this.animT.stop()
+    this.animW.start()
   }
 
-  startAnimation(){
-    this.anim.start()
+  stopAnimationW(){
+    this.animW.stop()
+  }  
+
+  startAnimationT(){
+    this.animW.stop()
+    this.animT.start()
   }
 
-  stopAnimation(){
-    this.anim.stop()
+  stopAnimationT(){
+    this.animT.stop()
   }
+
   drawHuman(): void{
     this.head = new Konva.Circle({
       x: dots.HEAD_X,
