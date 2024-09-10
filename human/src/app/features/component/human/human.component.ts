@@ -31,6 +31,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
   leftFoot!: Konva.Circle;
   rightFoot!: Konva.Circle;
   hat!: Konva.Wedge;
+  anim!: Konva.Animation;
 
   ngOnInit(): void {
     this.stage = new Konva.Stage({
@@ -39,13 +40,44 @@ export class HumanComponent implements OnInit, AfterViewInit{
       height:800
     })
     this.layer = new Konva.Layer();
-    this.stage.add(this.layer)
+    this.stage.add(this.layer);
+    this.initAnimation()
   }
 
   ngAfterViewInit(): void {
     this.drawHuman()
+    this.startAnimation()
   }
 
+  initAnimation(){
+    this.anim = new Konva.Animation((frame:any)=>{
+    
+    this.leftElbow.y(
+      10*Math.sin((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
+    )
+    this.rightElbow.y(
+      10*Math.cos((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
+    )
+
+    this.leftHand.y(
+      10*Math.cos((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
+    )
+    this.rightHand.y(
+      10*Math.sin((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
+    )
+
+    this.leftArm.points([dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, this.leftElbow.x(), this.leftElbow.y(), this.leftHand.x(), this.leftHand.y()]);
+    this.rightArm.points([dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, this.rightElbow.x(), this.rightElbow.y(), this.rightHand.x(), this.rightHand.y()]);
+  })
+  }
+
+  startAnimation(){
+    this.anim.start()
+  }
+
+  stopAnimation(){
+    this.anim.stop()
+  }
   drawHuman(): void{
     this.head = new Konva.Circle({
       x: dots.HEAD_X,
@@ -103,15 +135,13 @@ export class HumanComponent implements OnInit, AfterViewInit{
     this.layer.add(this.rightKnee);
     this.layer.add(this.leftFoot);
     this.layer.add(this.rightFoot);
-
-    
     this.layer.draw();
+
     this.dragControl(this.leftElbow, this.leftHand, this.leftArm, dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, dots.ELBOW_DISTANCE, dots.HAND_DISTANCE);
     this.dragControl(this.rightElbow, this.rightHand, this.rightArm, dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, dots.ELBOW_DISTANCE, dots.HAND_DISTANCE);
   
     this.dragControl(this.leftKnee, this.leftFoot, this.leftLeg, dots.LEFT_HIP_X, dots.HIP_Y, dots.KNEE_DISTANCE, dots.FOOT_DISTANCE);
     this.dragControl(this.rightKnee, this.rightFoot, this.rightLeg, dots.RIGHT_HIP_X, dots.HIP_Y, dots.KNEE_DISTANCE, dots.FOOT_DISTANCE);
-
   }
 
   createJoint(x:number, y: number): Circle{
