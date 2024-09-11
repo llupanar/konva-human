@@ -96,7 +96,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
   }
      
   startAnimationW(){
-    this.animT.stop()
+    this.stopAnimationT()
     this.animW.start()
   }
 
@@ -105,7 +105,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
   }  
 
   startAnimationT(){
-    this.animW.stop()
+    this.stopAnimationW()
     this.animT.start()
   }
 
