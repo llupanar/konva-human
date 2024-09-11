@@ -72,6 +72,26 @@ export class HumanComponent implements OnInit, AfterViewInit{
 
       this.leftArm.points([dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, this.leftElbow.x(), this.leftElbow.y(), this.leftHand.x(), this.leftHand.y()]);
       this.rightArm.points([dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, this.rightElbow.x(), this.rightElbow.y(), this.rightHand.x(), this.rightHand.y()]);
+
+
+      const kneesMovement = 80 * Math.sin((time * 1 * Math.PI) / 1000) + dots.BODY_END_Y;
+      this.leftKnee.y(kneesMovement);
+      this.rightKnee.y(kneesMovement);
+    
+      this.updateJointPosition(this.leftKnee, dots.BODY_END_X, dots.BODY_END_Y, dots.KNEE_DISTANCE);
+      this.updateJointPosition(this.rightKnee, dots.BODY_END_X, dots.BODY_END_Y, dots.KNEE_DISTANCE);
+
+      this.leftFoot.x(this.leftKnee.x());
+      this.leftFoot.y(this.leftKnee.y()+dots.FOOT_DISTANCE);
+
+      this.rightFoot.x(this.rightKnee.x());
+      this.rightFoot.y(this.rightKnee.y() +dots.FOOT_DISTANCE);
+
+
+      this.leftLeg.points([dots.BODY_END_X, dots.BODY_END_Y, this.leftKnee.x(), this.leftKnee.y(), this.leftFoot.x(), this.leftFoot.y()]);
+      this.rightLeg.points([dots.BODY_END_X, dots.BODY_END_Y, this.rightKnee.x(), this.rightKnee.y(), this.rightFoot.x(), this.rightFoot.y()]);
+
+
     });
   
     this.animW = new Konva.Animation((frame:any)=>{
