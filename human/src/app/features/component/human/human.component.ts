@@ -32,10 +32,13 @@ export class HumanComponent implements OnInit, AfterViewInit{
   leftFoot!: Konva.Circle;
   rightFoot!: Konva.Circle;
   hat!: Konva.Wedge;
+  floor!: Konva.Ellipse;
 
   nimbCircles: Konva.Circle[] = [];
   nimbGroupFront!: Konva.Group;      
   nimbGroupBack!: Konva.Group;       
+
+  allElementsGroup!: Konva.Group;
 
   animTectonic!: Konva.Animation;
   animWave!: Konva.Animation;
@@ -45,7 +48,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
   ngOnInit(): void {
     this.stage = new Konva.Stage({
       container: this.containerRef.nativeElement,
-      width:800,
+      width:900,
       height:800
     })
     this.layer = new Konva.Layer();
@@ -55,8 +58,46 @@ export class HumanComponent implements OnInit, AfterViewInit{
 
   ngAfterViewInit(): void {
     this.drawHuman()
-    this.createNimb();
+    this.dragControlHuman()
+    this.createNimb()
   }
+
+  dragControlHuman(){
+    this.allElementsGroup = new Konva.Group({
+      x: 0,
+      y: 0,
+      draggable: true
+    });
+
+    this.allElementsGroup.add(this.head);
+    this.allElementsGroup.add(this.hat);
+    this.allElementsGroup.add(this.body);
+    this.allElementsGroup.add(this.leftArm);
+    this.allElementsGroup.add(this.rightArm);
+    this.allElementsGroup.add(this.leftLeg);
+    this.allElementsGroup.add(this.rightLeg);
+    this.allElementsGroup.add(this.leftElbow);
+    this.allElementsGroup.add(this.rightElbow);
+    this.allElementsGroup.add(this.leftHand);
+    this.allElementsGroup.add(this.rightHand);
+    this.allElementsGroup.add(this.leftKnee);
+    this.allElementsGroup.add(this.rightKnee);
+    this.allElementsGroup.add(this.leftFoot);
+    this.allElementsGroup.add(this.rightFoot);
+    
+    this.layer.add(this.allElementsGroup)
+
+    this.dragControlGravity()
+  }
+
+  dragControlGravity(){
+    this.allElementsGroup.on('dragmove',()=>{
+      this.allElementsGroup.y(Math.min(275, this.allElementsGroup.y()))
+      this.layer.draw();
+    })
+  }
+
+  dragElementGravity(){ }
 
   drawHuman(): void{
     this.head = new Konva.Circle({
@@ -94,7 +135,15 @@ export class HumanComponent implements OnInit, AfterViewInit{
       strokeWidth: 4,
       rotation: 60,
     });
-  
+
+    this.floor = new Konva.Ellipse({
+      x: dots.BODY_END_X,
+      y: this.stage.height() / 1.5,
+      radiusX: this.stage.width() / 2,
+      radiusY: 50,
+      fill: '#adadad',
+    })
+
     this.leftElbow = this.createJoint(dots.LEFT_ELBOW_X,dots.LEFT_ELBOW_Y);
     this.rightElbow = this.createJoint(dots.RIGHT_ELBOW_X,dots.RIGHT_ELBOW_Y);
     this.leftHand = this.createJoint(dots.LEFT_HAND_X, dots.LEFT_HAND_Y);
@@ -110,21 +159,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
     this.leftLeg = this.createLine(dots.LEFT_HIP_X, dots.HIP_Y, this.leftKnee, this.leftFoot);
     this.rightLeg = this.createLine(dots.RIGHT_HIP_X, dots.HIP_Y, this.rightKnee, this.rightFoot);
 
-    this.layer.add(this.head);
-    this.layer.add(this.hat);
-    this.layer.add(this.body);
-    this.layer.add(this.leftArm);
-    this.layer.add(this.rightArm);
-    this.layer.add(this.leftLeg);
-    this.layer.add(this.rightLeg);
-    this.layer.add(this.leftElbow);
-    this.layer.add(this.rightElbow);
-    this.layer.add(this.leftHand);
-    this.layer.add(this.rightHand);
-    this.layer.add(this.leftKnee);
-    this.layer.add(this.rightKnee);
-    this.layer.add(this.leftFoot);
-    this.layer.add(this.rightFoot);
+    this.layer.add(this.floor)
     this.layer.draw();
 
     this.dragControl(this.leftElbow, this.leftHand, this.leftArm, dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, dots.ELBOW_DISTANCE, dots.HAND_DISTANCE);
@@ -210,8 +245,8 @@ export class HumanComponent implements OnInit, AfterViewInit{
       this.nimbCircles.push(circle);
       this.nimbGroupFront.add(circle)
     }
-    this.layer.add(this.nimbGroupFront);
-    this.layer.add(this.nimbGroupBack);
+    this.allElementsGroup.add(this.nimbGroupFront);
+    this.allElementsGroup.add(this.nimbGroupBack);
     this.animationNimb()
   }
 
