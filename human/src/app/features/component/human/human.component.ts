@@ -12,8 +12,9 @@ import { Line } from 'konva/lib/shapes/Line';
   styleUrl: './human.component.css'
 })
 export class HumanComponent implements OnInit, AfterViewInit{
-
+  
   @ViewChild('canvasContainer', { static: true }) containerRef!: ElementRef;
+
   stage!: Konva.Stage;
   layer!: Konva.Layer;
   head!: Konva.Circle;
@@ -31,12 +32,16 @@ export class HumanComponent implements OnInit, AfterViewInit{
   leftFoot!: Konva.Circle;
   rightFoot!: Konva.Circle;
   hat!: Konva.Wedge;
-  animT!: Konva.Animation;
-  animW!: Konva.Animation;
-  animM!: Konva.Animation;
-  nimb!: Konva.Circle;
-  flagTemp!: boolean;
+  nimbGroup!: Konva.Group;
+  nimbCircles: Konva.Circle[] = [];
 
+  groupFront!: Konva.Group;      
+  groupBack!: Konva.Group;       
+
+  animTectonic!: Konva.Animation;
+  animWave!: Konva.Animation;
+  animNimb!: Konva.Animation;
+  
 
   ngOnInit(): void {
     this.stage = new Konva.Stage({
@@ -46,12 +51,34 @@ export class HumanComponent implements OnInit, AfterViewInit{
     })
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
-    this.flagTemp = false;
     this.initAnimations()
   }
 
   ngAfterViewInit(): void {
     this.drawHuman()
+    this.createNimb()
+    this.animationNimb()
+  }
+
+  createNimb(): void {
+    for (let i = 0; i < dots.NUM_CIRCLES; i++) {
+      const angle = (i / dots.NUM_CIRCLES) * Math.PI * 2;
+      const x = dots.NIMB_RADIUS_X * Math.cos(angle);
+      const y = dots.NIMB_RADIUS_Y * Math.sin(angle);
+
+      const circle = new Konva.Circle({
+        x: x,
+        y: y,
+        radius: 10,
+        fill: 'yellow',
+        stroke: 'black',
+        strokeWidth: 2,
+        zIndex: 1 
+      });
+
+      this.nimbCircles.push(circle);
+      this.groupFront.add(circle)
+    }
   }
 
   drawHuman(): void{
@@ -61,8 +88,18 @@ export class HumanComponent implements OnInit, AfterViewInit{
       radius: 30,
       fill: 'gray',
       stroke: 'black',
-      strokeWidth:5
+      strokeWidth:5,
     })
+
+    this.groupBack = new Konva.Group({
+      x: dots.HEAD_X,
+      y: dots.HEAD_Y -10,
+    });
+
+    this.groupFront = new Konva.Group({
+      x: dots.HEAD_X,
+      y: dots.HEAD_Y -10,
+    });
 
     this.body = new Konva.Line({
       points:[dots.BODY_START_X, dots.BODY_START_Y, dots.BODY_END_X, dots.BODY_END_Y],
@@ -80,14 +117,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
       strokeWidth: 4,
       rotation: 60,
     });
-
-    this.nimb = new Konva.Circle({
-      x: dots.HEAD_X,
-      y: dots.HEAD_Y-30,
-      fill:'#f2aa00',
-      radius:10
-    })
-
+  
     this.leftElbow = this.createJoint(dots.LEFT_ELBOW_X,dots.LEFT_ELBOW_Y);
     this.rightElbow = this.createJoint(dots.RIGHT_ELBOW_X,dots.RIGHT_ELBOW_Y);
     this.leftHand = this.createJoint(dots.LEFT_HAND_X, dots.LEFT_HAND_Y);
@@ -103,10 +133,11 @@ export class HumanComponent implements OnInit, AfterViewInit{
     this.leftLeg = this.createLine(dots.LEFT_HIP_X, dots.HIP_Y, this.leftKnee, this.leftFoot);
     this.rightLeg = this.createLine(dots.RIGHT_HIP_X, dots.HIP_Y, this.rightKnee, this.rightFoot);
 
+    this.layer.add(this.groupFront);
     this.layer.add(this.head);
-    this.layer.add(this.body);
     this.layer.add(this.hat);
-    this.layer.add(this.nimb)
+    this.layer.add(this.groupBack);
+    this.layer.add(this.body);
     this.layer.add(this.leftArm);
     this.layer.add(this.rightArm);
     this.layer.add(this.leftLeg);
@@ -185,8 +216,36 @@ export class HumanComponent implements OnInit, AfterViewInit{
       return joint;
   }
 
+  animationNimb(){
+    this.animNimb = new Konva.Animation((frame:any) => {
+      const angleSpeed = frame.timeDiff/100;  
+      this.nimbCircles.forEach((circle, index) => {
+        const angle = (index / dots.NUM_CIRCLES) * Math.PI * 2 + frame.time * 0.002;
+        const x = dots.NIMB_RADIUS_X * Math.cos(angle);
+        const y = dots.NIMB_RADIUS_Y * Math.sin(angle);
+
+        circle.x(x);
+        circle.y(y);
+
+        if (y > 0) {
+          this.groupBack.removeName(circle);
+          circle.fill('yellow'); 
+          this.groupFront.add(circle);
+        } else {
+          this.groupFront.removeName(circle);
+          circle.fill('orange'); 
+          this.groupBack.add(circle); 
+        }
+      });
+      this.groupBack.zIndex(0);
+      this.groupFront.zIndex(13)
+    });
+
+    this.animNimb.start();
+  }
+
   initAnimations() {
-    this.animT = new Konva.Animation((frame: any)=>{
+    this.animTectonic = new Konva.Animation((frame: any)=>{
     const time = frame.time;
 
     const elbowYMovement = 50 * Math.sin((time * 2 * Math.PI) / 1000) + dots.SHOULDER_Y;
@@ -227,7 +286,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
     this.rightLeg.points([dots.BODY_END_X, dots.BODY_END_Y, this.rightKnee.x(), this.rightKnee.y(), this.rightFoot.x(), this.rightFoot.y()]);
   });
 
-  this.animW = new Konva.Animation((frame:any)=>{
+  this.animWave = new Konva.Animation((frame:any)=>{
     this.leftElbow.y(
       10*Math.sin((frame.time*2*Math.PI)/2000)+dots.SHOULDER_Y
     )
@@ -246,42 +305,23 @@ export class HumanComponent implements OnInit, AfterViewInit{
     this.leftArm.points([dots.LEFT_SHOULDER_X, dots.SHOULDER_Y, this.leftElbow.x(), this.leftElbow.y(), this.leftHand.x(), this.leftHand.y()]);
     this.rightArm.points([dots.RIGHT_SHOULDER_X, dots.SHOULDER_Y, this.rightElbow.x(), this.rightElbow.y(), this.rightHand.x(), this.rightHand.y()]);
   })
-
-  this.animM = new Konva.Animation((frame:any)=>{
-    const time = frame.time;
-    const angle = 50* Math.sin((time * 2 * Math.PI) / 2000) + dots.HEAD_X   
-
-    if(angle<405 && !this.flagTemp){
-      this.nimb.moveToBottom()
-      this.flagTemp=!this.flagTemp
-      this.nimb._setAttr('fill','#9e7228')
-    } 
-    if(angle>490 && this.flagTemp){
-     this.nimb.moveToTop()
-     this.flagTemp=!this.flagTemp
-     this.nimb._setAttr('fill','#f2aa00')
-    }
-    this.nimb.x( angle )
-  })
-
-  this.animM.start()
 }
-    
+  
   startAnimationW(){
     this.stopAnimationT()
-    this.animW.start()
+    this.animWave.start()
   }
 
   stopAnimationW(){
-    this.animW.stop()
+    this.animWave.stop()
   }  
 
   startAnimationT(){
     this.stopAnimationW()
-    this.animT.start()
+    this.animTectonic.start()
   }
 
   stopAnimationT(){
-    this.animT.stop()
+    this.animTectonic.stop()
   }
 }
