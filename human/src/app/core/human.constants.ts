@@ -42,6 +42,6 @@ export const LEFT_FOOT_Y= HIP_Y;
 export const RIGHT_FOOT_X = RIGHT_HIP_X + (KNEE_DISTANCE + FOOT_DISTANCE);
 export const RIGHT_FOOT_Y = HIP_Y;
 
-export const NIMB_RADIUS_X = 70;  
+export const NIMB_RADIUS_X = 60;  
 export const NIMB_RADIUS_Y = 10;  
-export const NUM_CIRCLES = 20;    
+export const NUM_CIRCLES = 17;    

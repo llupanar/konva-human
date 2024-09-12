@@ -32,11 +32,10 @@ export class HumanComponent implements OnInit, AfterViewInit{
   leftFoot!: Konva.Circle;
   rightFoot!: Konva.Circle;
   hat!: Konva.Wedge;
-  nimbGroup!: Konva.Group;
-  nimbCircles: Konva.Circle[] = [];
 
-  groupFront!: Konva.Group;      
-  groupBack!: Konva.Group;       
+  nimbCircles: Konva.Circle[] = [];
+  nimbGroupFront!: Konva.Group;      
+  nimbGroupBack!: Konva.Group;       
 
   animTectonic!: Konva.Animation;
   animWave!: Konva.Animation;
@@ -56,29 +55,7 @@ export class HumanComponent implements OnInit, AfterViewInit{
 
   ngAfterViewInit(): void {
     this.drawHuman()
-    this.createNimb()
-    this.animationNimb()
-  }
-
-  createNimb(): void {
-    for (let i = 0; i < dots.NUM_CIRCLES; i++) {
-      const angle = (i / dots.NUM_CIRCLES) * Math.PI * 2;
-      const x = dots.NIMB_RADIUS_X * Math.cos(angle);
-      const y = dots.NIMB_RADIUS_Y * Math.sin(angle);
-
-      const circle = new Konva.Circle({
-        x: x,
-        y: y,
-        radius: 10,
-        fill: 'yellow',
-        stroke: 'black',
-        strokeWidth: 2,
-        zIndex: 1 
-      });
-
-      this.nimbCircles.push(circle);
-      this.groupFront.add(circle)
-    }
+    this.createNimb();
   }
 
   drawHuman(): void{
@@ -91,12 +68,12 @@ export class HumanComponent implements OnInit, AfterViewInit{
       strokeWidth:5,
     })
 
-    this.groupBack = new Konva.Group({
+    this.nimbGroupBack = new Konva.Group({
       x: dots.HEAD_X,
       y: dots.HEAD_Y -10,
     });
 
-    this.groupFront = new Konva.Group({
+    this.nimbGroupFront = new Konva.Group({
       x: dots.HEAD_X,
       y: dots.HEAD_Y -10,
     });
@@ -133,10 +110,8 @@ export class HumanComponent implements OnInit, AfterViewInit{
     this.leftLeg = this.createLine(dots.LEFT_HIP_X, dots.HIP_Y, this.leftKnee, this.leftFoot);
     this.rightLeg = this.createLine(dots.RIGHT_HIP_X, dots.HIP_Y, this.rightKnee, this.rightFoot);
 
-    this.layer.add(this.groupFront);
     this.layer.add(this.head);
     this.layer.add(this.hat);
-    this.layer.add(this.groupBack);
     this.layer.add(this.body);
     this.layer.add(this.leftArm);
     this.layer.add(this.rightArm);
@@ -216,6 +191,30 @@ export class HumanComponent implements OnInit, AfterViewInit{
       return joint;
   }
 
+  createNimb(): void {
+    for (let i = 0; i < dots.NUM_CIRCLES; i++) {
+      const angle = (i / dots.NUM_CIRCLES) * Math.PI * 2;
+      const x = dots.NIMB_RADIUS_X * Math.cos(angle);
+      const y = dots.NIMB_RADIUS_Y * Math.sin(angle);
+
+      const circle = new Konva.Circle({
+        x: x,
+        y: y,
+        radius: 10,
+        fill: 'yellow',
+        stroke: 'black',
+        strokeWidth: 2,
+        zIndex: 1 
+      });
+
+      this.nimbCircles.push(circle);
+      this.nimbGroupFront.add(circle)
+    }
+    this.layer.add(this.nimbGroupFront);
+    this.layer.add(this.nimbGroupBack);
+    this.animationNimb()
+  }
+
   animationNimb(){
     this.animNimb = new Konva.Animation((frame:any) => {
       const angleSpeed = frame.timeDiff/100;  
@@ -228,17 +227,17 @@ export class HumanComponent implements OnInit, AfterViewInit{
         circle.y(y);
 
         if (y > 0) {
-          this.groupBack.removeName(circle);
+          this.nimbGroupBack.removeName(circle);
           circle.fill('yellow'); 
-          this.groupFront.add(circle);
+          this.nimbGroupFront.add(circle);
         } else {
-          this.groupFront.removeName(circle);
+          this.nimbGroupFront.removeName(circle);
           circle.fill('orange'); 
-          this.groupBack.add(circle); 
+          this.nimbGroupBack.add(circle); 
         }
       });
-      this.groupBack.zIndex(0);
-      this.groupFront.zIndex(13)
+      this.nimbGroupBack.zIndex(0);
+      this.nimbGroupFront.zIndex(13)
     });
 
     this.animNimb.start();
