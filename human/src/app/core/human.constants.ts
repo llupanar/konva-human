@@ -4,7 +4,7 @@ export const HEAD_Y = 100;
 export const BODY_START_X = HEAD_X;
 export const BODY_START_Y = HEAD_Y + 30; 
 export const BODY_END_X = HEAD_X;
-export const BODY_END_Y = 300;
+export const BODY_END_Y = 250;
 
 export const HAT_X = HEAD_X;
 export const HAT_Y = HEAD_Y-70;
